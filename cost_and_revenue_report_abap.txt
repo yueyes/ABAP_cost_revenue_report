@@ -1,0 +1,240 @@
+REPORT ZMSIM4301PROJECT.
+
+write: / '=====================Cost Report (by material)====================='.
+
+DATA: gt_ekko  TYPE TABLE OF ekko,
+      gs_ekko  TYPE ekko.
+
+DATA: gt_ekpo TYPE TABLE OF ekpo,
+      gs_ekpo TYPE ekpo.
+
+DATA: gt_mara TYPE TABLE OF mara,
+      gs_mara TYPE mara.
+
+TABLES: ekko,ekpo,mara.
+
+DATA: BEGIN OF gs_araa,
+        lifnr type ekko-lifnr,"company code of purchasing order
+        ebeln type ekko-ebeln,
+        ekorg type ekko-ekorg,
+        netwr type ekpo-netwr,
+        matnr type mara-matnr,
+      end OF gs_araa.
+
+DATA gt_araa like standard table of gs_araa.
+
+
+DATA: BEGIN OF waa,
+  lifnr type ekko-lifnr,
+  ebeln type ekko-ebeln,
+  ekorg type ekko-ekorg, "company info not bukrs
+  netwr type ekpo-netwr,
+  matnr type mara-matnr,
+end of waa.
+
+
+select-options crbm_vn FOR gs_ekko-lifnr.
+select-options crbm_plt FOR gs_ekko-ekorg.
+select-options crbm_mn FOR gs_mara-matnr.
+select-options crbm_po FOR gs_ekko-ebeln.
+
+
+
+
+select ek~lifnr ek~ebeln ek~ekorg ep~netwr ma~matnr into "vendor_account_num, PO, CompanyCode, Netvalue,material num
+   corresponding fields of table gt_araa
+from mara as ma left join ekpo as ep on ep~matnr = ma~matnr inner join ekko as ek on ek~ebeln = ep~ebeln
+   where ek~lifnr in crbm_vn
+   and ek~ekorg in crbm_plt
+   and ma~matnr in crbm_mn
+   and ek~ebeln in crbm_po
+   order by ek~lifnr.
+
+write: / 'material       TotalAmount'.
+
+LOOP AT gt_araa into waa.
+  write: / waa-matnr,waa-netwr.
+endloop.
+uline.skip.
+
+write: / '=====================Revenue Report (by customer group and material)====================='.
+
+DATA: gt_vb  TYPE TABLE OF vbrk,
+      gs_vb  TYPE vbrk.
+
+DATA: gt_vp TYPE TABLE OF vbrp,
+      gs_vp TYPE vbrp.
+
+TABLES: vbrk,vbrp.
+
+DATA: BEGIN OF gs_araaa,
+        bukrs type vbrk-bukrs,"company code of purchasing order
+        vbeln type vbrk-vbeln,
+        kunrg type vbrk-kunrg,
+        netwr type vbrk-netwr,
+        matnr type mara-matnr,
+        wrkst type mara-wrkst,
+      end OF gs_araaa.
+
+types: BEGIN OF gs_areaarea,
+        bukrs type vbrk-bukrs,"company code of purchasing order
+        vbeln type vbrk-vbeln,
+        kunrg type vbrk-kunrg,
+        netwr type vbrk-netwr,
+        matnr type mara-matnr,
+        wrkst type mara-wrkst,
+
+      end OF gs_areaarea.
+
+DATA gt_araaa like standard table of gs_araaa.
+
+
+DATA: BEGIN OF waaa,
+        bukrs type vbrk-bukrs,"company code of purchasing order
+        vbeln type vbrk-vbeln,
+        kunrg type vbrk-kunrg,
+        netwr type vbrk-netwr,
+        matnr type mara-matnr,
+        wrkst type mara-wrkst,
+end of waaa.
+
+
+select-options rrbmc_vn FOR gs_vb-bukrs.
+select-options rrbmc_cn FOR gs_vb-kunrg.
+select-options rrbmc_mn FOR gs_mara-matnr.
+select-options rrbmc_bd FOR gs_vb-vbeln.
+
+
+
+select distinct vk~bukrs vk~vbeln vk~kunrg vp~netwr ma~matnr ma~wrkst into "vendor_account_num, PO, CompanyCode, Netvalue,material num
+   corresponding fields of table gt_araaa
+from mara as ma left join vbrp as vp on vp~matnr = ma~matnr inner join vbrk as vk on vk~vbeln = vp~vbeln
+   where vk~bukrs in rrbmc_vn
+   and vk~kunrg in rrbmc_cn
+   and ma~matnr in rrbmc_mn
+   and vk~vbeln in rrbmc_bd
+   order by vk~bukrs.
+
+write: / 'Material List:'.
+write: / '50065662 : Sewing Machine'.
+write: / '50065667 : Electronic clock'.
+write: / '50065669 : Pencil'.
+write: / '50065688 : Ruler'.
+write: / '50065689 : Card Holder'.
+write: / '-----'.
+write: / 'Customer List:'.
+write: / '55552 : Customer 1'.
+write: / '55553 : Customer 2'.
+write: / '55554 : Customer 3'.
+write: / '-----'.
+write: / 'material      Customer                    TotalAmount'.
+
+LOOP AT gt_araaa into waaa.
+  write: / waaa-matnr, waaa-kunrg,waaa-netwr,waaa-wrkst.
+endloop.
+
+data: wa_araara type gs_areaarea,
+      temp_customers type STRING,
+      temp_prices type p,
+      countor type i.
+countor = 0.
+uline.skip.
+write: / '=====================Revenue Report (by customer)====================='.
+
+DATA: gt_vbrk  TYPE TABLE OF vbrk,
+      gs_vbrk  TYPE vbrk,
+      gv_title TYPE lvc_title.
+types: begin of gs_area,
+       bukrs type vbrk-bukrs,
+        vbeln type vbrk-vbeln,
+        kunrg type vbrk-kunrg,
+        netwr type vbrk-netwr,
+      end OF gs_area.
+DATA: BEGIN OF gs_ara,
+        bukrs type vbrk-bukrs,
+        vbeln type vbrk-vbeln,
+        kunrg type vbrk-kunrg,
+        netwr type vbrk-netwr,
+      end OF gs_ara.
+
+DATA gt_ara like standard table of gs_ara.
+
+DATA: gt_fieldcat type slis_t_fieldcat_alv,
+      gs_fieldcat type slis_fieldcat_alv.
+
+DATA: BEGIN OF wa,
+  bukrs type vbrk-bukrs,
+  vbeln type vbrk-vbeln,
+  kunrg type vbrk-kunrg,
+  netwr type vbrk-netwr,
+end of wa.
+
+
+
+select-options rrbc_cn FOR gs_vbrk-kunrg.
+
+select vk~bukrs vk~vbeln vk~kunrg vk~netwr  into corresponding fields of table
+  gt_ara from vbrk as vk
+  where vk~kunrg in rrbc_cn
+  order by vk~netwr.
+
+
+
+data: wa_ara type gs_area,
+      price type p,
+      sumup type p,
+      contri type p,
+      count type i,
+      temp_customer type STRING,
+      temp_price type p,
+      temptemp_price type p,
+      cus type STRING.
+count = 0.
+temptemp_price = 0.
+sumup = 0.
+
+"loop data
+loop at gt_ara into wa_ara.
+  at first.
+    skip.
+    write : / 'Customer      NetValue'.
+  endat.
+  if count = 0. "init
+    temp_customer = wa_ara-kunrg.
+    temp_price = wa_ara-netwr.
+  endif.
+  if count <> 0 and temp_customer = wa_ara-kunrg.
+    temp_price = temp_price + wa_ara-netwr.
+  endif.
+  if count <> 0 and temp_customer <> wa_ara-kunrg.
+    shift temp_customer left deleting leading '0'.
+     sumup = sumup + temp_price.
+    if temp_price > temptemp_price.
+      price = temp_price.
+      cus = temp_customer.
+    endif.
+    write : / temp_customer ,temp_price.
+    temp_customer = wa_ara-kunrg.
+    temptemp_price = temp_price.
+    temp_price = 0.
+    temp_price = wa_ara-netwr.
+  endif.
+  at last.
+    shift temp_customer left deleting leading '0'.
+    sumup = sumup + temp_price.
+    if temp_price > temptemp_price.
+      price = temp_price.
+      cus = temp_customer.
+    endif.
+    write : / temp_customer left-justified,temp_price.
+  endat.
+count = count + 1.
+endloop.
+
+uline.skip.
+shift cus left deleting leading '0'.
+"generate summary by calculating the data
+contri = 100 * ( price / sumup ).
+write : 'The most contributed customer is :',cus left-justified.skip.
+write:'It contributes US$',price left-justified.skip.
+write:'which takes: %',contri left-justified.uline. skip. 
